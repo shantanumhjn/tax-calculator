@@ -1,0 +1,57 @@
+[
+  {
+    "isin": "INF109K01TX1", 
+    "type": "DEBT", 
+    "name": "ICICI Prudential Money Market Fund"
+  }, 
+  {
+    "isin": "INF109K013J1", 
+    "type": "EQUITY", 
+    "name": "ICICI Prudential Banking and Financial Services - Direct Plan"
+  }, 
+  {
+    "isin": "INF277K01I86", 
+    "type": "EQUITY", 
+    "name": "Tata India Tax Savings Fund - Direct Plan"
+  }, 
+  {
+    "isin": "INF192K01BW7", 
+    "type": "EQUITY", 
+    "name": "JM Core 11 Fund - Direct Plan"
+  }, 
+  {
+    "isin": "INF204K01I50", 
+    "type": "EQUITY", 
+    "name": "Reliance Pharma Fund - Direct Plan"
+  }, 
+  {
+    "isin": "INF204K01K15", 
+    "type": "EQUITY", 
+    "name": "Reliance Small Cap Fund - Direct Plan"
+  }, 
+  {
+    "isin": "INF917K01QA1", 
+    "type": "EQUITY", 
+    "name": "L&T Emerging Businesses Fund - Direct Plan"
+  }, 
+  {
+    "isin": "INF192K01DD3", 
+    "type": "DEBT", 
+    "name": "JM Dynamic Debt Fund - Direct Plan"
+  }, 
+  {
+    "isin": "INF194K01Y29", 
+    "type": "EQUITY", 
+    "name": "IDFC Tax Advantage (ELSS) Fund - Direct Plan"
+  }, 
+  {
+    "isin": "INF917K01FW8", 
+    "type": "EQUITY", 
+    "name": "L&T Infrastructure Fund - Direct Plan"
+  }, 
+  {
+    "isin": "INF209K01WQ7", 
+    "type": "EQUITY", 
+    "name": "Aditya Birla Sun Life Pure Value Fund - Direct Plan"
+  }
+]
