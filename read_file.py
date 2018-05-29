@@ -1,20 +1,10 @@
 import datetime
 import json
 
-
-# transactions = {
-#     "BUY": [
-#
-#     ],
-#     "SELL": [
-#
-#     ]
-# }
-#
-# total = {
-#     "BUY": 0,
-#     "SELL": 0
-# }
+def str_to_date(date_str):
+    date_parts = date_str.split("-")
+    date_parts = [int(i) for i in date_parts]
+    return datetime.date(date_parts[0], date_parts[1], date_parts[2])
 
 def read_fund_names(fname):
     fund_names = {}
@@ -30,8 +20,8 @@ def read_fund_names(fname):
                 fund_names[row[1]] = {"name": row[2], "count": 0}
             fund_names[row[1]]["count"] += 1
 
-    for k, v in fund_names.items():
-        print k, v
+    # for k, v in fund_names.items():
+    #     print k, v
 
     return fund_names
 
@@ -50,19 +40,22 @@ def populate_fund_info(file_name):
         fund_names.pop(fund["isin"], None)
 
     for k, v in fund_names.items():
+        ft = str(raw_input(v["name"] + "(DEBT/EQUITY): "))
         existing_funds.append(
             {
                 "isin": k,
                 "name": v["name"],
-                "type": "EQUITY"
+                "type": ft
             }
         )
 
     with open("fund_info.json", 'w') as f:
         f.write(json.dumps(existing_funds, indent = 2))
 
+    return existing_funds
+
 def read_transactions(file_name, fund):
-    all_trans = []
+    all_trans = {"BUY": [], "SELL": []}
     with open(file_name) as f:
         line_num = 1
         for line in f:
@@ -71,50 +64,50 @@ def read_transactions(file_name, fund):
                 continue
             row = line.strip().split(",")
             if row[1] != fund: continue
-            print row[1], row[5], row[8], row[9], row[10]
-            # trans = {
-            #     "date": row[5],
-            #     "amount": float(row[8]),
-            #     "units": float(row[9]),
-            #     "nav": float(row[10])
-            # }
-            # all_trans.append(trans)
+            # print row[1], row[5], row[8], row[9], row[10]
+            trans = {
+                "date": str_to_date(row[5]),
+                "date_str": row[5],
+                "amount": float(row[8]),
+                "units": float(row[9]),
+                "nav": float(row[10])
+            }
+            all_trans[row[4]].append(trans)
 
-    for trans in all_trans:
-        print trans
+    for k, v in all_trans.items():
+        all_trans[k] = sorted(v, key = lambda trans: trans["date"])
+
+    # for trans in all_trans:
+    #     print trans, all_trans[trans]
 
     return all_trans
+
+def calculate_tax(transactions, fund_type):
+    period = 365
+    if fund_type == "DEBT": period *= 3
+    if len(transactions["SELL"]) > 0:
+        buys = transactions["BUY"]
+        for sale in transactions["SELL"]:
+            units = sale["units"]
+            amount = sale["amount"]
+            date = sale["date"]
+            buy_units = 0
+            buy_amount = 0
+            loop = True
+            while loop:
+                # if buys[0]["units"] +
+                None
+
+    else:
+        print "No gains yet"
+
+def check_all(file_name):
+    funds = populate_fund_info(file_name)
+    for fund in funds:
+        print fund["name"] + " (" + fund["isin"] + ")"
+        calculate_tax(read_transactions(file_name, fund["isin"]), fund["type"])
 
 if __name__ == "__main__":
     # read_fund_names("coin_order_history.csv")
     # read_transactions("coin_order_history.csv", "INF194K01Y29")
-    populate_fund_info("coin_order_history.csv")
-
-# with open("coin_order_history.csv") as f:
-#     line_num = 1
-#     for line in f:
-#         if line_num = 1: continue
-#         row = line.strip().split(",")
-#         if row[1] == isin:
-#             trans = {
-#                 "date": row[5],
-#                 "amount": float(row[8]),
-#                 "units": float(row[9]),
-#                 "nav": float(row[10])
-#             }
-#             transactions[row[4]].append(trans)
-#             total[row[4]] += float(row[9])
-#         line_num += 1
-#
-# # print json.dumps(transactions, indent = 2)
-#
-# for k, v in transactions.items():
-#     transactions[k] = sorted(v, key = lambda trans: trans["date"])
-#
-#
-# print json.dumps(transactions, indent = 2)
-#
-# for k, v in total.items():
-#     total[k] = round(v, 3)
-#
-# print json.dumps(total, indent = 2)
+    check_all("coin_order_history.csv")

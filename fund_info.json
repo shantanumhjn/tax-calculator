@@ -35,11 +35,6 @@
     "name": "L&T Emerging Businesses Fund - Direct Plan"
   }, 
   {
-    "isin": "INF192K01DD3", 
-    "type": "DEBT", 
-    "name": "JM Dynamic Debt Fund - Direct Plan"
-  }, 
-  {
     "isin": "INF194K01Y29", 
     "type": "EQUITY", 
     "name": "IDFC Tax Advantage (ELSS) Fund - Direct Plan"
@@ -53,5 +48,10 @@
     "isin": "INF209K01WQ7", 
     "type": "EQUITY", 
     "name": "Aditya Birla Sun Life Pure Value Fund - Direct Plan"
+  }, 
+  {
+    "isin": "INF192K01DD3", 
+    "type": "DEBT", 
+    "name": "JM Dynamic Debt Fund - Direct Plan"
   }
 ]
