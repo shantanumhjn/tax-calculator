@@ -10,6 +10,11 @@
     "name": "ICICI Prudential Money Market Fund"
   }, 
   {
+    "isin": "INF173K01FE6", 
+    "type": "EQUITY", 
+    "name": "Principal Hybrid Equity Fund - Direct Plan"
+  }, 
+  {
     "isin": "INF192K01BW7", 
     "type": "EQUITY", 
     "name": "JM Core 11 Fund - Direct Plan"
@@ -35,6 +40,11 @@
     "name": "Reliance Small Cap Fund - Direct Plan"
   }, 
   {
+    "isin": "INF205K01LE4", 
+    "type": "EQUITY", 
+    "name": "Invesco India Contra Fund - Direct Plan"
+  }, 
+  {
     "isin": "INF209K01WQ7", 
     "type": "EQUITY", 
     "name": "Aditya Birla Sun Life Pure Value Fund - Direct Plan"
@@ -45,6 +55,16 @@
     "name": "Tata India Tax Savings Fund - Direct Plan"
   }, 
   {
+    "isin": "INF277K01QO1", 
+    "type": "EQUITY", 
+    "name": "Tata Retirement Savings Fund - Progressive Plan - Direct Plan"
+  }, 
+  {
+    "isin": "INF769K01AX2", 
+    "type": "EQUITY", 
+    "name": "Mirae Asset India Equity Fund - Direct Plan"
+  }, 
+  {
     "isin": "INF917K01FW8", 
     "type": "EQUITY", 
     "name": "L&T Infrastructure Fund - Direct Plan"
@@ -53,5 +73,10 @@
     "isin": "INF917K01QA1", 
     "type": "EQUITY", 
     "name": "L&T Emerging Businesses Fund - Direct Plan"
+  }, 
+  {
+    "isin": "INF959L01AT5", 
+    "type": "DEBT", 
+    "name": "Essel Liquid Fund - Direct Plan"
   }
 ]
