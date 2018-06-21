@@ -49,6 +49,7 @@ def populate_fund_info(file_name):
             }
         )
 
+    existing_funds = sorted(existing_funds, key = lambda fund: fund["isin"])
     with open("fund_info.json", 'w') as f:
         f.write(json.dumps(existing_funds, indent = 2))
 
