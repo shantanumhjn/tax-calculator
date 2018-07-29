@@ -1,10 +1,13 @@
 import datetime
 import json
 from optparse import OptionParser
+import os
 
 SHOW_LEVEL_DEBUG = 1
 SHOW_LEVEL_INFO = 2
 SHOW_LEVEL_CURRENT = SHOW_LEVEL_INFO
+
+SAVE_TO_FILE = False
 
 def show(msg, level = SHOW_LEVEL_DEBUG):
     if level >= SHOW_LEVEL_CURRENT:
@@ -86,28 +89,36 @@ def read_transactions(file_name, fund):
                 "nav": float(row[10])
             }
             all_trans[row[4]].append(trans)
+            if not all_trans.has_key("name"):
+                all_trans["name"] = row[2]
 
     for k, v in all_trans.items():
-        if k != 'isin':
+        if k in ('BUY', 'SELL'):
             all_trans[k] = sorted(v, key = lambda trans: trans["date"])
 
     return all_trans
 
-def calculate_tax_int(sale, buys, period, tax):
+def calculate_tax_int(sale, buys, fund_name, fund_type, tax, print_header):
+    period = 365
+    if fund_type == "DEBT": period *= 3
+
     units = sale["units"]
     amount = sale["amount"]
     nav = sale["nav"]
     date = sale["date"]
-    show(50*"-")
-    show("Sale on {}, units: {}, nav: {}".format(sale["date_str"], units, nav))
-    show(50*"-")
+    date_str = sale["date_str"]
+    # show(50*"-")
+    # show("Sale on {}, units: {}, nav: {}".format(sale["date_str"], units, nav))
+    # show(50*"-")
     total_buy_units = 0
     ltcg = 0
     stcg = 0
-    print_format = "{:<15}{:<10}{:<10}{:<10}{}"
-    header = ["Date", "Units", "nav", "Profit", "Duration"]
-    show(print_format.format(*header), SHOW_LEVEL_DEBUG)
-    show(print_format.format(*["-"*len(h) for h in header]))
+    print_format = "{:<10}{:<40}{:<15}{:<10}{:<15}{:<10}{:<10}{:<10}{}"
+    header = ["FundType", "FundName", "BuyDate", "BuyCost", "SellDate", "SellCost", "Units", "Profit", "Duration"]
+    if print_header:
+        show("\n")
+        show(print_format.format(*header), SHOW_LEVEL_DEBUG)
+        show(print_format.format(*["-"*len(h) for h in header]))
     loop = True
     while loop:
         buy_units = buys[0]["units"]
@@ -126,6 +137,9 @@ def calculate_tax_int(sale, buys, period, tax):
             buys = buys[1:]
 
         total_buy_units += buy_units
+
+        buy_cost = buy_units * buy_nav
+        sell_cost = buy_units * nav
         profit = (buy_units * nav) - (buy_units * buy_nav)
 
         # within a single sell, we need to look
@@ -139,55 +153,78 @@ def calculate_tax_int(sale, buys, period, tax):
         # figuring out the FY
         fy = date.year
         if date.month < 4: fy -= 1
-        show(print_format.format(buy_date_str, buy_units, buy_nav, round(profit, 2), time_diff))
 
-    show("ltcg: {}, stcg: {}".format(ltcg, stcg), SHOW_LEVEL_DEBUG)
+        output = [fund_type, fund_name, buy_date.strftime("%d/%m/%Y"), round(buy_cost, 2), date.strftime("%d/%m/%Y"), round(sell_cost, 2), buy_units, round(profit, 2), time_diff]
+        show(print_format.format(*output))
+        if SAVE_TO_FILE:
+            output = output[1:]
+            output = output[:5]
+            with open("output.csv", "a") as f:
+                f.write(",".join([str(o) for o in output]) + "\n")
+
+
+    # show("ltcg: {}, stcg: {}".format(ltcg, stcg), SHOW_LEVEL_DEBUG)
 
     # populate the tax object
     if not tax.has_key(fy):
         tax[fy] = {
-            "gain": {
-                "ltcg": 0,
-                "stcg": 0
-            }, "loss": {
-                "ltcg": 0,
-                "stcg": 0
+            "DEBT": {
+                "gain": {
+                    "ltcg": 0,
+                    "stcg": 0
+                }, "loss": {
+                    "ltcg": 0,
+                    "stcg": 0
+                }
+            }, "EQUITY": {
+                "gain": {
+                    "ltcg": 0,
+                    "stcg": 0
+                }, "loss": {
+                    "ltcg": 0,
+                    "stcg": 0
+                }
             }
         }
-    if ltcg > 0: tax[fy]["gain"]["ltcg"] += ltcg
-    if ltcg < 0: tax[fy]["loss"]["ltcg"] += ltcg
-    if stcg > 0: tax[fy]["gain"]["stcg"] += stcg
-    if stcg < 0: tax[fy]["loss"]["stcg"] += stcg
+
+    if ltcg > 0: tax[fy][fund_type]["gain"]["ltcg"] += ltcg
+    if ltcg < 0: tax[fy][fund_type]["loss"]["ltcg"] += ltcg
+    if stcg > 0: tax[fy][fund_type]["gain"]["stcg"] += stcg
+    if stcg < 0: tax[fy][fund_type]["loss"]["stcg"] += stcg
 
 def calculate_tax(transactions, fund_type, tax):
-    period = 365
-    if fund_type == "DEBT": period *= 3
-
+    print_header = True
+    fund_name = transactions["name"]
     if len(transactions["SELL"]) > 0:
         buys = transactions["BUY"]
         for sale in transactions["SELL"]:
-            calculate_tax_int(sale, buys, period, tax)
-    else:
-        show("No Sells yet.")
+            calculate_tax_int(sale, buys, fund_name, fund_type, tax, print_header)
+            print_header = False
+    # else:
+    #     show("No Sells yet.")
 
 def check_all(file_name):
     tax = {}
     funds = populate_fund_info(file_name)
     for fund in funds:
-        show("\n" + fund["name"] + " (" + fund["type"] + ")")
+        # show("\n" + fund["name"] + " (" + fund["type"] + ")")
         calculate_tax(read_transactions(file_name, fund["isin"]), fund["type"], tax)
 
     show("\n\nOverall summary:", SHOW_LEVEL_INFO)
-    print_format = "{:<8}{:<10}{:<10}{:<10}{:<10}"
-    headers = ["FY", "ST Gain", "ST Loss", "LT Gain", "LT Loss"]
+    print_format = "{:<8}{:<15}{:<15}{:<15}{:<15}{:<15}{:<15}{:<15}{:<15}"
+    headers = ["FY", "Debt ST Gain", "Debt ST Loss", "Debt LT Gain", "Debt LT Loss", "Equity ST Gain", "Equity ST Loss", "Equity LT Gain", "Equity LT Loss"]
     show(print_format.format(*headers), SHOW_LEVEL_INFO)
     show(print_format.format(*['-' * len(h) for h in headers]), SHOW_LEVEL_INFO)
     for fy in sorted(tax.keys()):
-        st_gain = round(tax[fy]["gain"]["stcg"], 2)
-        st_loss = round(tax[fy]["loss"]["stcg"], 2)
-        lt_gain = round(tax[fy]["gain"]["ltcg"], 2)
-        lt_loss = round(tax[fy]["loss"]["ltcg"], 2)
-        show(print_format.format(fy, st_gain, st_loss, lt_gain, lt_loss), SHOW_LEVEL_INFO)
+        d_st_gain = round(tax[fy]["DEBT"]["gain"]["stcg"], 2)
+        d_st_loss = round(tax[fy]["DEBT"]["loss"]["stcg"], 2)
+        d_lt_gain = round(tax[fy]["DEBT"]["gain"]["ltcg"], 2)
+        d_lt_loss = round(tax[fy]["DEBT"]["loss"]["ltcg"], 2)
+        e_st_gain = round(tax[fy]["EQUITY"]["gain"]["stcg"], 2)
+        e_st_loss = round(tax[fy]["EQUITY"]["loss"]["stcg"], 2)
+        e_lt_gain = round(tax[fy]["EQUITY"]["gain"]["ltcg"], 2)
+        e_lt_loss = round(tax[fy]["EQUITY"]["loss"]["ltcg"], 2)
+        show(print_format.format(fy, d_st_gain, d_st_loss, d_lt_gain, d_lt_loss, e_st_gain, e_st_loss, e_lt_gain, e_lt_loss), SHOW_LEVEL_INFO)
 
 if __name__ == "__main__":
     parser = OptionParser()
@@ -201,10 +238,23 @@ if __name__ == "__main__":
         action = "store_true", default = False, dest = "debug",
         help = "Print a lot more data"
     )
+    parser.add_option(
+        "-s", "--save",
+        action = "store_true", default = False, dest = "save",
+        help = "saves transactions to a file (csv)"
+    )
+
     (options, args) = parser.parse_args()
     if not options.filename:
         parser.error("filename is required!")
 
     if options.debug: SHOW_LEVEL_CURRENT = SHOW_LEVEL_DEBUG
+
+    if options.save:
+        SAVE_TO_FILE = True
+        try:
+            os.remove("output.csv")
+        except OSError as e:
+            print "unable to cleanup old output file"
 
     check_all(options.filename)
