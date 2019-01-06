@@ -132,9 +132,9 @@ def calculate_tax_int(sale, buys, fund_name, fund_type, tax, print_header):
             buys[0]["units"] -= buy_units
         elif round(buy_units + total_buy_units, 3) == units:
             loop = False
-            buys = buys[1:]
+            buys.pop(0)
         else:
-            buys = buys[1:]
+            buys.pop(0)
 
         total_buy_units += buy_units
 

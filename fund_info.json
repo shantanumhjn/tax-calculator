@@ -10,6 +10,11 @@
     "name": "ICICI Prudential Money Market Fund"
   }, 
   {
+    "isin": "INF109K01Z48", 
+    "type": "EQUITY", 
+    "name": "ICICI Prudential Technology Fund - Direct Plan"
+  }, 
+  {
     "isin": "INF173K01FE6", 
     "type": "EQUITY", 
     "name": "Principal Hybrid Equity Fund - Direct Plan"
