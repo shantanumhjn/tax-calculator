@@ -1,6 +1,6 @@
 import datetime
 import json
-from optparse import OptionParser
+from argparse import ArgumentParser
 import os
 
 SHOW_LEVEL_DEBUG = 1
@@ -227,34 +227,42 @@ def check_all(file_name):
         show(print_format.format(fy, d_st_gain, d_st_loss, d_lt_gain, d_lt_loss, e_st_gain, e_st_loss, e_lt_gain, e_lt_loss), SHOW_LEVEL_INFO)
 
 if __name__ == "__main__":
-    parser = OptionParser()
-    parser.add_option(
-        "-f", "--file",
-        dest = "filename", metavar = "FILE",
-        help = "File name to read data from (required)"
+    parser = ArgumentParser(
+        description=
+            'Read mutual fund transaction files '
+            'from Zerodha and calculate the tax.'
     )
-    parser.add_option(
+    # action defaults to store
+    parser.add_argument(
+        "filename",
+        action='store',
+        help='file to read from'
+    )
+    parser.add_argument(
+        "-t", "--filetype",
+        default='zerodha', choices=['zerodha', 'kuvera'],
+        help='zerodha/kuvera format file'
+    )
+    parser.add_argument(
         "-d", "--debug",
-        action = "store_true", default = False, dest = "debug",
+        action = "store_true", default = False,
         help = "Print a lot more data"
     )
-    parser.add_option(
+    parser.add_argument(
         "-s", "--save",
-        action = "store_true", default = False, dest = "save",
+        action = "store_true", default = False,
         help = "saves transactions to a file (csv)"
     )
 
-    (options, args) = parser.parse_args()
-    if not options.filename:
-        parser.error("filename is required!")
+    args = parser.parse_args()
 
-    if options.debug: SHOW_LEVEL_CURRENT = SHOW_LEVEL_DEBUG
+    if args.debug: SHOW_LEVEL_CURRENT = SHOW_LEVEL_DEBUG
 
-    if options.save:
+    if args.save:
         SAVE_TO_FILE = True
         try:
             os.remove("output.csv")
         except OSError as e:
-            print "unable to cleanup old output file"
+            print "unable to cleanup old output file: {}".format(e)
 
-    check_all(options.filename)
+    check_all(args.filename)
