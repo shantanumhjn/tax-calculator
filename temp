@@ -1,2 +1,8 @@
+zerodha:
 client_id,isin, scheme_name,plan, transaction_mode, trade_date, ordered_at, folio_number, amount, units,nav,status, remarks
 0         1     2           3     4                 5           6           7             8       9     10  11      12
+
+
+kuvera:
+Date, Folio Number, Name of the Fund, Order,  Units,  NAV,  Current Nav,  Amount (INR)
+0     1             2                 3       4       5     6             7

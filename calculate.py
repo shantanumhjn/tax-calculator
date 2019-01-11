@@ -9,6 +9,10 @@ SHOW_LEVEL_CURRENT = SHOW_LEVEL_INFO
 
 SAVE_TO_FILE = False
 
+FILE_TYPE_ZERODHA = 'zerodha'
+FILE_TYPE_KUVERA = 'kuvera'
+FILE_TYPE = FILE_TYPE_ZERODHA
+
 def show(msg, level = SHOW_LEVEL_DEBUG):
     if level >= SHOW_LEVEL_CURRENT:
         print msg
@@ -98,6 +102,124 @@ def read_transactions(file_name, fund):
 
     return all_trans
 
+def populate_fund_types(trans):
+    with open("fund_info.json") as f:
+        f_content = f.read()
+    if f_content is None or len(f_content) == 0:
+        f_content = "[]"
+    existing_funds = json.loads(f_content)
+
+    fund_type_dict = {}
+    for fund in existing_funds:
+        fund_type_dict[fund['name']] = fund
+
+    found_new_fund = False
+
+    for k, v in trans.items():
+        if not fund_type_dict.has_key(k):
+            found_new_fund = True
+            ft = str(raw_input(k + "(DEBT/EQUITY): "))
+            if ft.lower().startswith('d'): ft = 'DEBT'
+            if ft.lower().startswith('e'): ft = 'EQUITY'
+            info = {
+                "isin": v['isin'],
+                "name": k,
+                "type": ft
+            }
+            existing_funds.append(info)
+            fund_type_dict[k] = info
+        v['type'] = fund_type_dict[k]['type']
+
+    if found_new_fund:
+        existing_funds = sorted(existing_funds, key = lambda fund: fund["name"])
+        with open("fund_info.json", 'w') as f:
+            f.write(json.dumps(existing_funds, indent = 2))
+
+FILE_READ_OBJECT = {
+    FILE_TYPE_ZERODHA: {
+        "name_index": 2,
+        "isin_index": 1,
+        "trans_type_index": 4,
+        "other_attributes": [
+            {"key": "date", "index": 5, "function": str_to_date,},
+            {"key": "amount", "index": 8, "function": float,},
+            {"key": "units", "index": 9, "function": float,},
+            {"key": "nav", "index": 10, "function": float,},
+        ],
+    },
+    FILE_TYPE_KUVERA: {
+        "name_index": 2,
+        "trans_type_index": 3,
+        "other_attributes": [
+            {"key": "date", "index": 0, "function": str_to_date,},
+            {"key": "amount", "index": 7, "function": float,},
+            {"key": "units", "index": 4, "function": float,},
+            {"key": "nav", "index": 5, "function": float,},
+        ],
+    },
+}
+
+'''
+    all_trans = {
+        fund_name: {
+            "buys": [],
+            "sells": [],
+            "fund_type": "type",
+            "isin": "isin"
+        }
+    }
+'''
+def read_all_transactions(file_name):
+    read_object = FILE_READ_OBJECT[FILE_TYPE]
+    all_trans = {}
+    with open(file_name) as f:
+        file_content = f.read()
+    first_line = True
+    for line in file_content.split('\n'):
+        if first_line:
+            first_line = False
+            continue
+        line = line.strip()
+        if not line: continue
+        row = line.split(',')
+
+        # special check for zerodha
+        if FILE_TYPE == FILE_TYPE_ZERODHA:
+            if row[11] not in ["Allotted", "Redeemed"]:
+                continue
+        fund_name = row[read_object["name_index"]]
+        fund_isin = None
+        if read_object.get("isin_index"):
+            fund_isin = row[read_object.get("isin_index")]
+        trans = {}
+        for attrs in read_object["other_attributes"]:
+            # trans[attrs["key"]] = attrs["function"](row[attrs["index"]])
+            key = attrs["key"]
+            index = attrs["index"]
+            func = attrs["function"]
+            trans[key] = func(row[index])
+
+        if not all_trans.has_key(fund_name):
+            all_trans[fund_name] = {
+                "BUY": [],
+                "SELL": [],
+                "isin": fund_isin,
+                "type": "DEBT",
+                "name": fund_name,
+            }
+        trans_type = row[read_object["trans_type_index"]].upper()
+        all_trans[fund_name][trans_type].append(trans)
+
+    # populate fund type, DEBT or EQUITY
+    populate_fund_types(all_trans)
+
+    for k1, v1 in all_trans.items():
+        for k2, v2 in v1.items():
+            if k2 in ('BUY', 'SELL'):
+                all_trans[k1][k2] = sorted(v2, key = lambda trans: trans["date"])
+
+    return all_trans
+
 def calculate_tax_int(sale, buys, fund_name, fund_type, tax, print_header):
     period = 365
     if fund_type == "DEBT": period *= 3
@@ -106,14 +228,13 @@ def calculate_tax_int(sale, buys, fund_name, fund_type, tax, print_header):
     amount = sale["amount"]
     nav = sale["nav"]
     date = sale["date"]
-    date_str = sale["date_str"]
     # show(50*"-")
     # show("Sale on {}, units: {}, nav: {}".format(sale["date_str"], units, nav))
     # show(50*"-")
     total_buy_units = 0
     ltcg = 0
     stcg = 0
-    print_format = "{:<10}{:<40}{:<15}{:<10}{:<15}{:<10}{:<10}{:<10}{}"
+    print_format = "{:<10}{:<55}{:<15}{:<10}{:<15}{:<10}{:<10}{:<10}{}"
     header = ["FundType", "FundName", "BuyDate", "BuyCost", "SellDate", "SellCost", "Units", "Profit", "Duration"]
     if print_header:
         show("\n")
@@ -123,7 +244,6 @@ def calculate_tax_int(sale, buys, fund_name, fund_type, tax, print_header):
     while loop:
         buy_units = buys[0]["units"]
         buy_date = buys[0]["date"]
-        buy_date_str = buys[0]["date_str"]
         buy_amount = buys[0]["amount"]
         buy_nav = buys[0]["nav"]
         if round(buy_units + total_buy_units, 3) > units:
@@ -192,9 +312,10 @@ def calculate_tax_int(sale, buys, fund_name, fund_type, tax, print_header):
     if stcg > 0: tax[fy][fund_type]["gain"]["stcg"] += stcg
     if stcg < 0: tax[fy][fund_type]["loss"]["stcg"] += stcg
 
-def calculate_tax(transactions, fund_type, tax):
+def calculate_tax(transactions, tax):
     print_header = True
     fund_name = transactions["name"]
+    fund_type = transactions["type"]
     if len(transactions["SELL"]) > 0:
         buys = transactions["BUY"]
         for sale in transactions["SELL"]:
@@ -205,10 +326,8 @@ def calculate_tax(transactions, fund_type, tax):
 
 def check_all(file_name):
     tax = {}
-    funds = populate_fund_info(file_name)
-    for fund in funds:
-        # show("\n" + fund["name"] + " (" + fund["type"] + ")")
-        calculate_tax(read_transactions(file_name, fund["isin"]), fund["type"], tax)
+    for trans in read_all_transactions(file_name).values():
+        calculate_tax(trans, tax)
 
     show("\n\nOverall summary:", SHOW_LEVEL_INFO)
     print_format = "{:<8}{:<15}{:<15}{:<15}{:<15}{:<15}{:<15}{:<15}{:<15}"
@@ -240,7 +359,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-t", "--filetype",
-        default='zerodha', choices=['zerodha', 'kuvera'],
+        default=FILE_TYPE_ZERODHA, choices=[FILE_TYPE_ZERODHA, FILE_TYPE_KUVERA],
         help='zerodha/kuvera format file'
     )
     parser.add_argument(
@@ -264,5 +383,7 @@ if __name__ == "__main__":
             os.remove("output.csv")
         except OSError as e:
             print "unable to cleanup old output file: {}".format(e)
+
+    FILE_TYPE = args.filetype
 
     check_all(args.filename)

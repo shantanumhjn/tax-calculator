@@ -1,5 +1,65 @@
 [
   {
+    "isin": null, 
+    "type": "EQUITY", 
+    "name": "ADITYA BIRLA SUN LIFE PURE VALUE GROWTH DIRECT PLAN"
+  }, 
+  {
+    "isin": null, 
+    "type": "EQUITY", 
+    "name": "ADITYA BIRLA SUN LIFE TAX RELIEF 96 GROWTH PLAN"
+  }, 
+  {
+    "isin": null, 
+    "type": "EQUITY", 
+    "name": "AXIS LONG TERM EQUITY GROWTH PLAN"
+  }, 
+  {
+    "isin": "INF209K01WQ7", 
+    "type": "EQUITY", 
+    "name": "Aditya Birla Sun Life Pure Value Fund - Direct Plan"
+  }, 
+  {
+    "isin": null, 
+    "type": "EQUITY", 
+    "name": "DSP TAX SAVER GROWTH PLAN"
+  }, 
+  {
+    "isin": "INF959L01AT5", 
+    "type": "DEBT", 
+    "name": "Essel Liquid Fund - Direct Plan"
+  }, 
+  {
+    "isin": null, 
+    "type": "EQUITY", 
+    "name": "HDFC TAXSAVER GROWTH PLAN"
+  }, 
+  {
+    "isin": null, 
+    "type": "EQUITY", 
+    "name": "ICICI PRUDENTIAL BANKING AND FINANCIAL SERVICES GROWTH DIRECT PLAN"
+  }, 
+  {
+    "isin": null, 
+    "type": "EQUITY", 
+    "name": "ICICI PRUDENTIAL LONG TERM EQUITY GROWTH PLAN"
+  }, 
+  {
+    "isin": null, 
+    "type": "DEBT", 
+    "name": "ICICI PRUDENTIAL MONEY MARKET GROWTH PLAN"
+  }, 
+  {
+    "isin": null, 
+    "type": "EQUITY", 
+    "name": "ICICI PRUDENTIAL TECHNOLOGY GROWTH DIRECT PLAN"
+  }, 
+  {
+    "isin": null, 
+    "type": "EQUITY", 
+    "name": "ICICI PRUDENTIAL VALUE SERIES 1 DIVIDEND PAYOUT PLAN"
+  }, 
+  {
     "isin": "INF109K013J1", 
     "type": "EQUITY", 
     "name": "ICICI Prudential Banking and Financial Services - Direct Plan"
@@ -15,9 +75,29 @@
     "name": "ICICI Prudential Technology Fund - Direct Plan"
   }, 
   {
-    "isin": "INF173K01FE6", 
+    "isin": null, 
     "type": "EQUITY", 
-    "name": "Principal Hybrid Equity Fund - Direct Plan"
+    "name": "IDFC TAX ADVANTAGE GROWTH DIRECT PLAN"
+  }, 
+  {
+    "isin": "INF194K01Y29", 
+    "type": "EQUITY", 
+    "name": "IDFC Tax Advantage (ELSS) Fund - Direct Plan"
+  }, 
+  {
+    "isin": null, 
+    "type": "EQUITY", 
+    "name": "INVESCO INDIA TAX GROWTH PLAN"
+  }, 
+  {
+    "isin": "INF205K01LE4", 
+    "type": "EQUITY", 
+    "name": "Invesco India Contra Fund - Direct Plan"
+  }, 
+  {
+    "isin": null, 
+    "type": "EQUITY", 
+    "name": "JM CORE 11 GROWTH DIRECT PLAN"
   }, 
   {
     "isin": "INF192K01BW7", 
@@ -25,14 +105,64 @@
     "name": "JM Core 11 Fund - Direct Plan"
   }, 
   {
+    "isin": null, 
+    "type": "DEBT", 
+    "name": "JM DYNAMIC DEBT GROWTH DIRECT PLAN"
+  }, 
+  {
     "isin": "INF192K01DD3", 
     "type": "DEBT", 
     "name": "JM Dynamic Debt Fund - Direct Plan"
   }, 
   {
-    "isin": "INF194K01Y29", 
+    "isin": null, 
     "type": "EQUITY", 
-    "name": "IDFC Tax Advantage (ELSS) Fund - Direct Plan"
+    "name": "L&T EMERGING BUSINESSES GROWTH DIRECT PLAN"
+  }, 
+  {
+    "isin": "INF917K01QA1", 
+    "type": "EQUITY", 
+    "name": "L&T Emerging Businesses Fund - Direct Plan"
+  }, 
+  {
+    "isin": null, 
+    "type": "EQUITY", 
+    "name": "L&T INFRASTRUCTURE GROWTH DIRECT PLAN"
+  }, 
+  {
+    "isin": "INF917K01FW8", 
+    "type": "EQUITY", 
+    "name": "L&T Infrastructure Fund - Direct Plan"
+  }, 
+  {
+    "isin": null, 
+    "type": "EQUITY", 
+    "name": "L&T TAX ADVANTAGE GROWTH PLAN"
+  }, 
+  {
+    "isin": "INF769K01AX2", 
+    "type": "EQUITY", 
+    "name": "Mirae Asset India Equity Fund - Direct Plan"
+  }, 
+  {
+    "isin": "INF173K01FE6", 
+    "type": "EQUITY", 
+    "name": "Principal Hybrid Equity Fund - Direct Plan"
+  }, 
+  {
+    "isin": null, 
+    "type": "EQUITY", 
+    "name": "RELIANCE PHARMA GROWTH DIRECT PLAN"
+  }, 
+  {
+    "isin": null, 
+    "type": "EQUITY", 
+    "name": "RELIANCE SMALL CAP GROWTH DIRECT PLAN"
+  }, 
+  {
+    "isin": null, 
+    "type": "EQUITY", 
+    "name": "RELIANCE TAX SAVER GROWTH PLAN"
   }, 
   {
     "isin": "INF204K01I50", 
@@ -45,14 +175,19 @@
     "name": "Reliance Small Cap Fund - Direct Plan"
   }, 
   {
-    "isin": "INF205K01LE4", 
+    "isin": null, 
     "type": "EQUITY", 
-    "name": "Invesco India Contra Fund - Direct Plan"
+    "name": "SUNDARAM DIVERSIFIED EQUITY REGULAR GROWTH PLAN"
   }, 
   {
-    "isin": "INF209K01WQ7", 
+    "isin": null, 
     "type": "EQUITY", 
-    "name": "Aditya Birla Sun Life Pure Value Fund - Direct Plan"
+    "name": "TATA INDIA TAX SAVING GROWTH DIRECT PLAN"
+  }, 
+  {
+    "isin": null, 
+    "type": "EQUITY", 
+    "name": "TATA INDIA TAX SAVING REGULAR GROWTH PLAN"
   }, 
   {
     "isin": "INF277K01I86", 
@@ -63,25 +198,5 @@
     "isin": "INF277K01QO1", 
     "type": "EQUITY", 
     "name": "Tata Retirement Savings Fund - Progressive Plan - Direct Plan"
-  }, 
-  {
-    "isin": "INF769K01AX2", 
-    "type": "EQUITY", 
-    "name": "Mirae Asset India Equity Fund - Direct Plan"
-  }, 
-  {
-    "isin": "INF917K01FW8", 
-    "type": "EQUITY", 
-    "name": "L&T Infrastructure Fund - Direct Plan"
-  }, 
-  {
-    "isin": "INF917K01QA1", 
-    "type": "EQUITY", 
-    "name": "L&T Emerging Businesses Fund - Direct Plan"
-  }, 
-  {
-    "isin": "INF959L01AT5", 
-    "type": "DEBT", 
-    "name": "Essel Liquid Fund - Direct Plan"
   }
 ]
