@@ -13,6 +13,8 @@ FILE_TYPE_ZERODHA = 'zerodha'
 FILE_TYPE_KUVERA = 'kuvera'
 FILE_TYPE = FILE_TYPE_ZERODHA
 
+SHOW_FOR_FY = None
+
 def show(msg, level = SHOW_LEVEL_DEBUG):
     if level >= SHOW_LEVEL_CURRENT:
         print msg
@@ -194,13 +196,14 @@ def calculate_tax_int(sale, buys, fund_name, fund_type, tax, print_header):
         fy = date.year
         if date.month < 4: fy -= 1
 
-        output = [fund_type, fund_name, buy_date.strftime("%d/%m/%Y"), round(buy_cost, 2), date.strftime("%d/%m/%Y"), round(sell_cost, 2), buy_units, round(profit, 2), time_diff]
-        show(print_format.format(*output))
-        if SAVE_TO_FILE:
-            output = output[1:]
-            output = output[:5]
-            with open("output.csv", "a") as f:
-                f.write(",".join([str(o) for o in output]) + "\n")
+        if SHOW_FOR_FY is None or SHOW_FOR_FY == fy:
+            output = [fund_type, fund_name, buy_date.strftime("%d/%m/%Y"), round(buy_cost, 2), date.strftime("%d/%m/%Y"), round(sell_cost, 2), buy_units, round(profit, 2), time_diff]
+            show(print_format.format(*output))
+            if SAVE_TO_FILE:
+                output = output[1:]
+                output = output[:5]
+                with open("output.csv", "a") as f:
+                    f.write(",".join([str(o) for o in output]) + "\n")
 
 
     # show("ltcg: {}, stcg: {}".format(ltcg, stcg), SHOW_LEVEL_DEBUG)
@@ -292,6 +295,11 @@ if __name__ == "__main__":
         action = "store_true", default = False,
         help = "saves transactions to a file (csv)"
     )
+    parser.add_argument(
+        "-y", "--year",
+        type = int, default = None,
+        help = "Shows or saves transactions only for FY year specified"
+    )
 
     args = parser.parse_args()
 
@@ -305,5 +313,7 @@ if __name__ == "__main__":
             print "unable to cleanup old output file: {}".format(e)
 
     FILE_TYPE = args.filetype
+
+    SHOW_FOR_FY = args.year
 
     check_all(args.filename)
