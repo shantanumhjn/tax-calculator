@@ -24,7 +24,7 @@ def str_to_date(date_str):
     date_parts = [int(i) for i in date_parts]
     return datetime.date(date_parts[0], date_parts[1], date_parts[2])
 
-def populate_fund_types(trans):
+def populate_fund_types(trans, fund_folio_dict):
     with open("fund_info.json") as f:
         f_content = f.read()
     if f_content is None or len(f_content) == 0:
@@ -37,7 +37,7 @@ def populate_fund_types(trans):
 
     found_new_fund = False
 
-    for k, v in trans.items():
+    for k, v in fund_folio_dict.items():
         if not fund_type_dict.has_key(k):
             found_new_fund = True
             ft = str(raw_input(k + "(DEBT/EQUITY): "))
@@ -50,7 +50,9 @@ def populate_fund_types(trans):
             }
             existing_funds.append(info)
             fund_type_dict[k] = info
-        v['type'] = fund_type_dict[k]['type']
+        for folio in v:
+            trans_key = k + '<sep>' + folio
+            trans[trans_key]['type'] = fund_type_dict[k]['type']
 
     if found_new_fund:
         existing_funds = sorted(existing_funds, key = lambda fund: fund["name"])
@@ -62,6 +64,7 @@ FILE_READ_OBJECT = {
         "name_index": 2,
         "isin_index": 1,
         "trans_type_index": 4,
+        # "folio_number_index": 7, # folio number is missing in sells
         "other_attributes": [
             {"key": "date", "index": 5, "function": str_to_date,},
             {"key": "amount", "index": 8, "function": float,},
@@ -72,6 +75,7 @@ FILE_READ_OBJECT = {
     FILE_TYPE_KUVERA: {
         "name_index": 2,
         "trans_type_index": 3,
+        "folio_number_index": 1,
         "other_attributes": [
             {"key": "date", "index": 0, "function": str_to_date,},
             {"key": "amount", "index": 7, "function": float,},
@@ -83,7 +87,7 @@ FILE_READ_OBJECT = {
 
 '''
     all_trans = {
-        fund_name: {
+        fund_name<sep>folio_number: {
             "buys": [],
             "sells": [],
             "fund_type": "type",
@@ -94,6 +98,7 @@ FILE_READ_OBJECT = {
 def read_all_transactions(file_name):
     read_object = FILE_READ_OBJECT[FILE_TYPE]
     all_trans = {}
+    fund_folio_dict = {} # {fund_name: [f1, f2],}
     with open(file_name) as f:
         file_content = f.read()
     first_line = True
@@ -110,9 +115,14 @@ def read_all_transactions(file_name):
             if row[11] not in ["Allotted", "Redeemed"]:
                 continue
         fund_name = row[read_object["name_index"]]
+        trans_type = row[read_object["trans_type_index"]].upper()
+        folio_number = ''
+        if read_object.get("folio_number_index"):
+            folio_number = row[read_object["folio_number_index"]]
         fund_isin = None
         if read_object.get("isin_index"):
             fund_isin = row[read_object.get("isin_index")]
+        trans_key = fund_name + '<sep>' + folio_number
         trans = {}
         for attrs in read_object["other_attributes"]:
             # trans[attrs["key"]] = attrs["function"](row[attrs["index"]])
@@ -121,19 +131,23 @@ def read_all_transactions(file_name):
             func = attrs["function"]
             trans[key] = func(row[index])
 
-        if not all_trans.has_key(fund_name):
-            all_trans[fund_name] = {
+        if not all_trans.has_key(trans_key):
+            all_trans[trans_key] = {
                 "BUY": [],
                 "SELL": [],
                 "isin": fund_isin,
                 "type": "DEBT",
                 "name": fund_name,
             }
-        trans_type = row[read_object["trans_type_index"]].upper()
-        all_trans[fund_name][trans_type].append(trans)
+        all_trans[trans_key][trans_type].append(trans)
+
+        # populate the fund name to folio mapping
+        if not fund_folio_dict.has_key(fund_name):
+            fund_folio_dict[fund_name] = set()
+        fund_folio_dict[fund_name].add(folio_number)
 
     # populate fund type, DEBT or EQUITY
-    populate_fund_types(all_trans)
+    populate_fund_types(all_trans, fund_folio_dict)
 
     for k1, v1 in all_trans.items():
         for k2, v2 in v1.items():
